@@ -98,6 +98,16 @@ The Claude Code hook is for `STOP` which uses Terminal-Notifier to show macOS de
   - Includes validation steps between batch operations
   - Usage: `/batch-operations-prompt "Update all API calls to use new auth header"`
 
+### `/refactor` Commands
+
+- **`/refactor-code`** - Analysis-only refactoring specialist that creates comprehensive refactoring plans without modifying code
+  - Analyzes code complexity, test coverage, and architectural patterns
+  - Identifies safe extraction points and refactoring opportunities
+  - Creates detailed step-by-step refactoring plans with risk assessment
+  - Generates timestamped reports in `reports/refactor/` directory
+  - Focuses on safety, incremental progress, and maintainability
+  - Usage: `/refactor-code`
+
 ## Claude Code settings
 
 > Configure Claude Code with global and project-level settings, and environment variables.
