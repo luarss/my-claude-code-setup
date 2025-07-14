@@ -82,6 +82,16 @@ Grep: "test|spec|jest|pytest|unittest|mocha|jasmine|rspec|phpunit"
 - High cyclomatic complexity (> 15)
 - Multiple responsibilities in single file
 
+**Code Smell Detection**:
+- Long parameter lists (>4 parameters)
+- Duplicate code detection (>10 similar lines)
+- Dead code identification
+- God object/function patterns
+- Feature envy (methods using other class data)
+- Inappropriate intimacy between classes
+- Lazy classes (classes that do too little)
+- Message chains (a.b().c().d())
+
 ## PHASE 2: TEST COVERAGE ANALYSIS
 
 ### 2.1 Existing Test Discovery
@@ -100,12 +110,27 @@ Glob: "**/*coverage*|**/.coveragerc|**/jest.config.*|**/pytest.ini"
 
 ### 2.2 Coverage Gap Analysis
 
+**REQUIRED Analysis**:
+- Run coverage analysis if .coverage files exist
+- Analyze test file naming patterns and locations
+- Map test files to source files
+- Identify untested public functions/methods
+- Calculate test-to-code ratio
+- Examine assertion density in existing tests
+
 **Assess**:
 - Current test coverage percentage
 - Critical paths without tests
 - Test quality and assertion depth
 - Mock/stub usage patterns
 - Integration vs unit test balance
+
+**Coverage Mapping Requirements**:
+1. Create a table mapping source files to test files
+2. List all public functions/methods without tests
+3. Identify critical code paths with < 80% coverage
+4. Calculate average assertions per test
+5. Document test execution time baselines
 
 **Generate Coverage Report**:
 ```
@@ -131,22 +156,38 @@ Go: go test -cover
 
 ### 3.1 Metrics Calculation
 
+**REQUIRED Measurements**:
+- Calculate exact cyclomatic complexity using AST analysis
+- Measure actual lines vs logical lines of code
+- Count parameters, returns, and branches per function
+- Generate coupling metrics between classes/modules
+- Create a complexity heatmap with specific scores
+
 **Universal Complexity Metrics**:
-1. **Cyclomatic Complexity**: Decision points in code
-2. **Cognitive Complexity**: Mental effort to understand
-3. **Depth of Inheritance**: Class hierarchy depth
-4. **Coupling Between Objects**: Inter-class dependencies
-5. **Lines of Code**: Raw size metrics
-6. **Nesting Depth**: Maximum nesting levels
+1. **Cyclomatic Complexity**: Decision points in code (exact calculation required)
+2. **Cognitive Complexity**: Mental effort to understand (score 1-100)
+3. **Depth of Inheritance**: Class hierarchy depth (exact number)
+4. **Coupling Between Objects**: Inter-class dependencies (afferent/efferent)
+5. **Lines of Code**: Physical vs logical lines (both required)
+6. **Nesting Depth**: Maximum nesting levels (exact depth)
+7. **Maintainability Index**: Calculated metric (0-100)
+
+**Required Output Table Format**:
+```
+| Function/Class | Lines | Cyclomatic | Cognitive | Parameters | Nesting | Risk |
+|----------------|-------|------------|-----------|------------|---------|------|
+| function_name  | 125   | 18         | 45        | 6          | 4       | HIGH |
+```
 
 **Language-Specific Analysis**:
 ```python
 # Python example
 def analyze_complexity(file_path):
-    # Cyclomatic complexity per function
-    # Nesting depth analysis
-    # Class coupling metrics
-    # Import complexity
+    # Use ast module for exact metrics
+    # Calculate cyclomatic complexity per function
+    # Measure nesting depth precisely
+    # Count decision points, loops, conditions
+    # Generate maintainability index
 ```
 
 ### 3.2 Hotspot Identification
@@ -161,11 +202,32 @@ Low Complexity + Low Change Frequency = LOW
 
 ### 3.3 Dependency Analysis
 
+**REQUIRED Outputs**:
+- List ALL files that import the target module
+- Create visual dependency graph (mermaid or ASCII)
+- Identify circular dependencies with specific paths
+- Calculate afferent/efferent coupling metrics
+- Map public vs private API usage
+
 **Map Dependencies**:
-- Internal dependencies (within project)
-- External dependencies (libraries, frameworks)
-- Circular dependencies (must resolve)
-- Hidden dependencies (globals, singletons)
+- Internal dependencies (within project) - list specific files
+- External dependencies (libraries, frameworks) - with versions
+- Circular dependencies (must resolve) - show exact cycles
+- Hidden dependencies (globals, singletons) - list all instances
+- Transitive dependencies - full dependency tree
+
+**Dependency Matrix Format**:
+```
+| Module | Imports From | Imported By | Afferent | Efferent | Instability |
+|--------|-------------|-------------|----------|----------|-------------|
+| utils  | 5 modules   | 12 modules  | 12       | 5        | 0.29        |
+```
+
+**Circular Dependency Detection**:
+```
+Cycle 1: moduleA -> moduleB -> moduleC -> moduleA
+Cycle 2: classX -> classY -> classX
+```
 
 ## PHASE 4: REFACTORING STRATEGY
 
@@ -193,11 +255,26 @@ Low Complexity + Low Change Frequency = LOW
 4. **Extract Interface**: Define clear contracts
 5. **Extract Service**: Isolate business logic
 
+**Pattern Selection Criteria**:
+- For functions >50 lines: Extract Method pattern
+- For classes >7 methods: Extract Class pattern
+- For repeated code blocks: Extract to shared utility
+- For complex conditions: Extract to well-named predicate
+- For data clumps: Extract to value object
+- For long parameter lists: Introduce parameter object
+
 **Extraction Size Guidelines**:
-- Methods: 20-60 lines
-- Classes: 100-200 lines
-- Modules: 200-500 lines
+- Methods: 20-60 lines (sweet spot: 30-40)
+- Classes: 100-200 lines (5-7 methods)
+- Modules: 200-500 lines (single responsibility)
 - Clear single responsibility
+
+**Code Example Requirements**:
+For each extraction, provide:
+1. BEFORE code snippet (current state)
+2. AFTER code snippet (refactored state)
+3. Migration steps
+4. Test requirements
 
 ### 4.3 Incremental Plan
 
@@ -283,13 +360,41 @@ Low Complexity + Low Change Frequency = LOW
 
 ### 6.3 Success Metrics
 
+**REQUIRED Baselines (measure before refactoring)**:
+- Memory usage: Current MB vs projected MB
+- Import time: Measure current import performance (seconds)
+- Function call overhead: Benchmark critical paths (ms)
+- Cache effectiveness: Current hit rates (%)
+- Async operation latency: Current measurements (ms)
+
 **Measurable Outcomes**:
-- Code coverage: 80% � 90%
+- Code coverage: 80% → 90%
 - Cyclomatic complexity: <15 per function
 - File size: <500 lines per file
-- Build time: d current time
-- Performance: d current benchmarks
+- Build time: ≤ current time
+- Performance: ≥ current benchmarks
 - Bug count: Reduced by X%
+- Memory usage: ≤ current baseline
+- Import time: < 0.5s per module
+
+**Performance Measurement Commands**:
+```python
+# Memory profiling
+import tracemalloc
+tracemalloc.start()
+# ... code ...
+current, peak = tracemalloc.get_traced_memory()
+
+# Import time
+import time
+start = time.time()
+import module_name
+print(f"Import time: {time.time() - start}s")
+
+# Function benchmarking
+import timeit
+timeit.timeit('function_name()', number=1000)
+```
 
 ## REPORT GENERATION
 
@@ -314,21 +419,45 @@ Low Complexity + Low Change Frequency = LOW
 
 ## CURRENT STATE ANALYSIS
 
-### File Metrics
-- Total Lines: X
-- Functions: Y
-- Classes: Z
-- Complexity Score: N
+### File Metrics Summary Table
+| Metric | Value | Target | Status |
+|--------|-------|---------|---------|
+| Total Lines | X | <500 | ⚠️ |
+| Functions | Y | <20 | ✅ |
+| Classes | Z | <10 | ⚠️ |
+| Avg Complexity | N | <15 | ❌ |
 
-### Test Coverage
-- Current Coverage: X%
-- Critical Path Coverage: Y%
-- Missing Test Areas: [list]
+### Code Smell Analysis
+| Code Smell | Count | Severity | Examples |
+|------------|-------|----------|----------|
+| Long Methods | X | HIGH | function_a (125 lines) |
+| God Classes | Y | CRITICAL | ClassX (25 methods) |
+| Duplicate Code | Z | MEDIUM | Lines 145-180 similar to 450-485 |
 
-### Complexity Hotspots
-1. Function `calculate_total()` - Complexity: 45
-2. Class `DataProcessor` - Methods: 25
-3. Module `utils.py` - Lines: 1200
+### Test Coverage Analysis
+| File/Module | Coverage | Missing Lines | Critical Gaps |
+|-------------|----------|---------------|---------------|
+| module.py | 45% | 125-180, 200-250 | auth_function() |
+| utils.py | 78% | 340-360 | None |
+
+### Complexity Analysis
+| Function/Class | Lines | Cyclomatic | Cognitive | Parameters | Nesting | Risk |
+|----------------|-------|------------|-----------|------------|---------|------|
+| calculate_total() | 125 | 45 | 68 | 8 | 6 | CRITICAL |
+| DataProcessor | 850 | - | - | - | - | HIGH |
+| validate_input() | 78 | 18 | 32 | 5 | 4 | HIGH |
+
+### Dependency Analysis
+| Module | Imports From | Imported By | Coupling | Risk |
+|--------|-------------|-------------|----------|------|
+| utils.py | 12 modules | 25 modules | HIGH | ⚠️ |
+
+### Performance Baselines
+| Metric | Current | Target | Notes |
+|--------|---------|---------|-------|
+| Import Time | 1.2s | <0.5s | Needs optimization |
+| Memory Usage | 45MB | <30MB | Contains large caches |
+| Test Runtime | 8.5s | <5s | Slow integration tests |
 
 ## REFACTORING PLAN
 
@@ -354,6 +483,14 @@ Low Complexity + Low Change Frequency = LOW
 
 ## RISK ASSESSMENT
 
+### Risk Matrix
+| Risk | Likelihood | Impact | Score | Mitigation |
+|------|------------|---------|-------|------------|
+| Breaking API compatibility | Medium | High | 6 | Facade pattern, versioning |
+| Performance degradation | Low | Medium | 3 | Benchmark before/after |
+| Circular dependencies | Medium | High | 6 | Dependency analysis first |
+| Test coverage gaps | High | High | 9 | Write tests before refactoring |
+
 ### Technical Risks
 - **Risk 1**: Breaking API compatibility
   - Mitigation: Maintain facade pattern
@@ -362,7 +499,8 @@ Low Complexity + Low Change Frequency = LOW
 
 ### Timeline Risks
 - Total Estimated Time: 10 days
-- Critical Path: Test coverage � Core extractions
+- Critical Path: Test coverage → Core extractions
+- Buffer Required: +30% (3 days)
 
 ## IMPLEMENTATION CHECKLIST
 
@@ -386,13 +524,63 @@ Low Complexity + Low Change Frequency = LOW
 ## APPENDICES
 
 ### A. Complexity Analysis Details
-[Detailed metrics and calculations]
+**Function-Level Metrics**:
+```
+function_name(params): 
+  - Physical Lines: X
+  - Logical Lines: Y
+  - Cyclomatic: Z
+  - Cognitive: N
+  - Decision Points: A
+  - Exit Points: B
+```
 
 ### B. Dependency Graph
-[Visual or textual representation]
+```mermaid
+graph TD
+    A[target_module] --> B[dependency1]
+    A --> C[dependency2]
+    B --> D[shared_util]
+    C --> D
+    D --> A
+    style D fill:#ff9999
+```
+Note: Circular dependency detected (highlighted in red)
 
 ### C. Test Plan Details
-[Comprehensive test scenarios]
+**Test Coverage Requirements**:
+| Component | Current | Required | New Tests Needed |
+|-----------|---------|----------|------------------|
+| Module A | 45% | 85% | 15 unit, 5 integration |
+| Module B | 0% | 80% | 25 unit, 8 integration |
+
+### D. Code Examples
+**BEFORE (current state)**:
+```python
+def complex_function(data, config, user, session, cache, logger):
+    # 125 lines of nested logic
+    if data:
+        for item in data:
+            if item.type == 'A':
+                # 30 lines of processing
+            elif item.type == 'B':
+                # 40 lines of processing
+```
+
+**AFTER (refactored)**:
+```python
+def process_data(data: List[Item], context: ProcessContext):
+    """Process data items by type."""
+    for item in data:
+        processor = get_processor(item.type)
+        processor.process(item, context)
+
+class ProcessContext:
+    """Encapsulates processing dependencies."""
+    def __init__(self, config, user, session, cache, logger):
+        self.config = config
+        # ...
+```
 
 ---
 *This report serves as a comprehensive guide for refactoring execution. 
