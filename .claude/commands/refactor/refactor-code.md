@@ -30,15 +30,94 @@ You are a senior software architect with 20+ years of experience in large-scale 
 
 Break this analysis into specialized agent tasks:
 
-1. **Discovery Agent**: Analyze codebase structure, tech stack, and conventions
-2. **Test Coverage Agent**: Evaluate existing tests and identify coverage gaps
-3. **Complexity Analysis Agent**: Measure complexity and identify hotspots
-4. **Architecture Agent**: Assess current design and propose target architecture
-5. **Planning Agent**: Create detailed, step-by-step refactoring plan
-6. **Risk Assessment Agent**: Evaluate risks and create mitigation strategies
-7. **Documentation Agent**: Synthesize findings into comprehensive report
+1. **Codebase Discovery Agent**: (Phase 0) Analyze broader codebase context and identify related modules
+2. **Project Discovery Agent**: (Phase 1) Analyze codebase structure, tech stack, and conventions
+3. **Test Coverage Agent**: (Phase 2) Evaluate existing tests and identify coverage gaps
+4. **Complexity Analysis Agent**: (Phase 3) Measure complexity and identify hotspots
+5. **Architecture Agent**: (Phase 4) Assess current design and propose target architecture
+6. **Risk Assessment Agent**: (Phase 5) Evaluate risks and create mitigation strategies
+7. **Planning Agent**: (Phase 6) Create detailed, step-by-step refactoring plan
+8. **Documentation Agent**: (Report) Synthesize findings into comprehensive report
 
 Use `<thinking>` tags to show your reasoning process for complex analytical decisions. Allocate extended thinking time for each analysis phase.
+
+## PHASE 0: CODEBASE-WIDE DISCOVERY (Optional)
+
+**Purpose**: Before deep-diving into the target file, optionally discover related modules and identify additional refactoring opportunities across the codebase.
+
+### 0.1 Target File Ecosystem Analysis
+
+**Discover Dependencies**:
+```
+# Find all files that import the target file
+Grep: "from.*{target_module}|import.*{target_module}" to find dependents
+
+# Find all files imported by the target
+Task: "Analyze imports in target file to identify dependencies"
+
+# Identify circular dependencies
+Task: "Check for circular import patterns involving target file"
+```
+
+### 0.2 Related Module Discovery
+
+**Identify Coupled Modules**:
+```
+# Find files frequently modified together (if git available)
+Bash: "git log --format='' --name-only | grep -v '^$' | sort | uniq -c | sort -rn"
+
+# Find files with similar naming patterns
+Glob: Pattern based on target file naming convention
+
+# Find files in same functional area
+Task: "Identify modules in same directory or functional group"
+```
+
+### 0.3 Codebase-Wide Refactoring Candidates
+
+**Discover Other Large Files**:
+```
+# Find all large files that might benefit from refactoring
+Task: "Find all files > 500 lines in the codebase"
+Bash: "find . -name '*.{ext}' -exec wc -l {} + | sort -rn | head -20"
+
+# Identify other god objects/modules
+Grep: "class.*:" then count methods per class
+Task: "Find classes with > 10 methods or files with > 20 functions"
+```
+
+### 0.4 Multi-File Refactoring Recommendation
+
+**Generate Recommendations**:
+Based on the discovery, create a recommendation table:
+
+| Priority | File | Lines | Reason | Relationship to Target |
+|----------|------|-------|--------|------------------------|
+| HIGH | file1.py | 2000 | God object, 30+ methods | Imports target heavily |
+| HIGH | file2.py | 1500 | Circular dependency | Mutual imports with target |
+| MEDIUM | file3.py | 800 | High coupling | Uses 10+ functions from target |
+| LOW | file4.py | 600 | Same module | Could be refactored together |
+
+**Decision Point**:
+- **Single File Focus**: Continue with target file only (skip to Phase 1)
+- **Multi-File Approach**: Include HIGH priority files in analysis
+- **Modular Refactoring**: Plan coordinated refactoring of related modules
+
+**Output for Report**:
+```markdown
+### Codebase-Wide Context
+- Target file is imported by: X files
+- Target file imports: Y modules
+- Tightly coupled with: [list files]
+- Recommended additional files for refactoring: [list with reasons]
+- Suggested refactoring approach: [single-file | multi-file | modular]
+```
+
+⚠️ **Note**: This phase is OPTIONAL. Skip if:
+- User explicitly wants single-file analysis only
+- Codebase is small (< 20 files)
+- Time constraints require focused analysis
+- Target file is relatively isolated
 
 ## PHASE 1: PROJECT DISCOVERY & CONTEXT
 
@@ -417,6 +496,26 @@ timeit.timeit('function_name()', number=1000)
 ## EXECUTIVE SUMMARY
 [High-level overview of refactoring scope and benefits]
 
+## CODEBASE-WIDE CONTEXT (if Phase 0 was executed)
+
+### Related Files Discovery
+- **Target file imported by**: X files [list key dependents]
+- **Target file imports**: Y modules [list key dependencies]
+- **Tightly coupled modules**: [list files with high coupling]
+- **Circular dependencies detected**: [Yes/No - list if any]
+
+### Additional Refactoring Candidates
+| Priority | File | Lines | Complexity | Reason |
+|----------|------|-------|------------|---------|
+| HIGH | file1.py | 2000 | 35 | God object, imports target |
+| HIGH | file2.py | 1500 | 30 | Circular dependency with target |
+| MEDIUM | file3.py | 800 | 25 | High coupling, similar patterns |
+
+### Recommended Approach
+- **Refactoring Strategy**: [single-file | multi-file | modular]
+- **Rationale**: [explanation of why this approach is recommended]
+- **Additional files to include**: [list if multi-file approach]
+
 ## CURRENT STATE ANALYSIS
 
 ### File Metrics Summary Table
@@ -591,13 +690,14 @@ Reference this document when implementing: @reports/refactor/refactor_[target]_D
 
 When invoked with target file(s), this prompt will:
 
-1. **Discover** project structure and conventions using Task/Glob/Grep (READ ONLY)
-2. **Analyze** test coverage using appropriate tools (READ ONLY)
-3. **Calculate** complexity metrics for all target files (ANALYSIS ONLY)
-4. **Identify** safe extraction points (40-60 line blocks) (PLANNING ONLY)
-5. **Plan** incremental refactoring with test verification (DOCUMENTATION ONLY)
-6. **Assess** risks and create mitigation strategies (ANALYSIS ONLY)
-7. **Generate** comprehensive report with execution guide (WRITE REPORT FILE ONLY)
+1. **Discover** (Optional Phase 0) broader codebase context and related modules (READ ONLY)
+2. **Analyze** project structure and conventions using Task/Glob/Grep (READ ONLY)
+3. **Evaluate** test coverage using appropriate tools (READ ONLY)
+4. **Calculate** complexity metrics for all target files (ANALYSIS ONLY)
+5. **Identify** safe extraction points (40-60 line blocks) (PLANNING ONLY)
+6. **Plan** incremental refactoring with test verification (DOCUMENTATION ONLY)
+7. **Assess** risks and create mitigation strategies (ANALYSIS ONLY)
+8. **Generate** comprehensive report with execution guide (WRITE REPORT FILE ONLY)
 
 The report provides a complete roadmap that can be followed step-by-step during actual refactoring, ensuring safety and success.
 
