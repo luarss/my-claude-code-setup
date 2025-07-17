@@ -229,6 +229,12 @@ Go: go test -cover
 - Test data requirements
 - Mock/stub strategies
 
+**Environment Requirements**:
+- Identify and document the project's testing environment (venv, conda, docker, etc.)
+- Note package manager in use (pip, uv, poetry, npm, yarn, maven, etc.)
+- Document test framework and coverage tools available
+- Include environment activation commands for testing
+
 ⚠️ **REMINDER**: Document what tests WOULD BE NEEDED, do not create them
 
 ## PHASE 3: COMPLEXITY ANALYSIS
@@ -407,11 +413,50 @@ For each extraction, provide:
 
 ## PHASE 6: EXECUTION PLANNING
 
+### 6.0 BACKUP STRATEGY (CRITICAL PREREQUISITE)
+
+**MANDATORY: Create Original File Backups**:
+Before ANY refactoring execution, ensure original files are safely backed up:
+
+```bash
+# Create backup directory structure
+mkdir -p backup_temp/
+
+# Backup original files with timestamp
+cp target_file.py backup_temp/target_file_original_$(date +%Y-%m-%d_%H%M%S).py
+
+# For multiple files (adjust file pattern as needed)
+find . -name "*.{py,js,java,ts,go,rb}" -path "./src/*" -exec cp {} backup_temp/{}_original_$(date +%Y-%m-%d_%H%M%S) \;
+```
+
+**Backup Requirements**:
+- **Location**: All backups MUST go in `backup_temp/` directory
+- **Naming**: `{original_filename}_original_{YYYY-MM-DD_HHMMSS}.{ext}`
+- **Purpose**: Enable before/after comparison and rollback capability
+- **Verification**: Confirm backup integrity before proceeding
+
+**Example Backup Structure**:
+```
+backup_temp/
+├── target_file_original_2025-07-17_143022.py
+├── module_a_original_2025-07-17_143022.py
+├── component_b_original_2025-07-17_143022.js
+└── service_c_original_2025-07-17_143022.java
+```
+
+⚠️ **CRITICAL**: No refactoring should begin without confirmed backups in place
+
 ### 6.1 Task Breakdown
 
 **Generate TodoWrite Compatible Tasks**:
 ```json
 [
+  {
+    "id": "create_backups",
+    "content": "Create backup copies of all target files in backup_temp/ directory",
+    "priority": "critical",
+    "estimated_hours": 0.5
+  },
   {
     "id": "establish_test_baseline",
     "content": "Create test suite achieving 80-90% coverage for target files",
@@ -419,12 +464,30 @@ For each extraction, provide:
     "estimated_hours": 8
   },
   {
-    "id": "extract_auth_logic",
-    "content": "Extract authentication logic from main.py lines 145-205",
+    "id": "extract_module_logic",
+    "content": "Extract [specific logic] from [target_file] lines [X-Y]",
     "priority": "high",
     "estimated_hours": 4
   },
-  // ... more tasks
+  {
+    "id": "validate_refactoring",
+    "content": "Run full test suite and validate no functionality broken",
+    "priority": "high",
+    "estimated_hours": 2
+  },
+  {
+    "id": "update_documentation",
+    "content": "Update README.md and architecture docs to reflect new module structure",
+    "priority": "medium",
+    "estimated_hours": 3
+  },
+  {
+    "id": "verify_documentation",
+    "content": "Verify all file paths and examples in documentation are accurate",
+    "priority": "medium",
+    "estimated_hours": 1
+  }
+  // ... more extraction tasks
 ]
 ```
 
@@ -607,18 +670,83 @@ timeit.timeit('function_name()', number=1000)
 // TodoWrite compatible task list
 [
   {"id": "1", "content": "Review and approve refactoring plan", "priority": "high"},
-  {"id": "2", "content": "Set up feature branch 'refactor/[target]'", "priority": "high"},
-  {"id": "3", "content": "Establish test baseline - 85% coverage", "priority": "high"},
+  {"id": "2", "content": "Create backup files in backup_temp/ directory", "priority": "critical"},
+  {"id": "3", "content": "Set up feature branch 'refactor/[target]'", "priority": "high"},
+  {"id": "4", "content": "Establish test baseline - 85% coverage", "priority": "high"},
+  {"id": "5", "content": "Execute planned refactoring extractions", "priority": "high"},
+  {"id": "6", "content": "Validate all tests pass after refactoring", "priority": "high"},
+  {"id": "7", "content": "Update project documentation (README, architecture)", "priority": "medium"},
+  {"id": "8", "content": "Verify documentation accuracy and consistency", "priority": "medium"}
   // ... complete task list
 ]
 ```
 
+## POST-REFACTORING DOCUMENTATION UPDATES
+
+### 7.1 MANDATORY Documentation Updates (After Successful Refactoring)
+
+**CRITICAL**: Once refactoring is complete and validated, update project documentation:
+
+**README.md Updates**:
+- Update project structure tree to reflect new modular organization
+- Modify any architecture diagrams or component descriptions
+- Update installation/setup instructions if module structure changed
+- Revise examples that reference refactored files/modules
+
+**Architecture Documentation Updates**:
+- Update any ARCHITECTURE.md, DESIGN.md, or similar files only if they exist. Do not create them if they don't already exist.
+- Modify module organization sections in project documentation
+- Update import/dependency diagrams
+- Revise developer onboarding guides
+
+**Project-Specific Documentation**:
+
+- Look for project-specific documentation files (CLAUDE.md, CONTRIBUTING.md, etc.). Do not create them if they don't already exist.
+- Update any module reference tables or component lists
+- Modify file organization sections
+- Update any internal documentation references
+
+**Documentation Update Checklist**:
+```markdown
+- [ ] README.md project structure updated
+- [ ] Architecture documentation reflects new modules
+- [ ] Import/dependency references updated
+- [ ] Developer guides reflect new organization
+- [ ] Project-specific docs updated (if applicable)
+- [ ] Examples and code snippets updated
+- [ ] Module reference tables updated
+```
+
+**Documentation Consistency Verification**:
+- Ensure all file paths in documentation are accurate
+- Verify import statements in examples are correct
+- Check that module descriptions match actual implementation
+- Validate that architecture diagrams reflect reality
+
+### 7.2 Version Control Documentation
+
+**Commit Message Template**:
+```
+refactor: [brief description of refactoring]
+
+- Extracted [X] modules from [original file]
+- Reduced complexity from [before] to [after]
+- Maintained 100% backward compatibility
+- Updated documentation to reflect new structure
+
+Files changed: [list key files]
+New modules: [list new modules]
+Backup location: backup_temp/[files]
+```
+
 ## SUCCESS METRICS
 - [ ] All tests passing after each extraction
-- [ ] Code coverage e 85%
+- [ ] Code coverage ≥ 85%
 - [ ] No performance degradation
 - [ ] Cyclomatic complexity < 15
 - [ ] File sizes < 500 lines
+- [ ] Documentation updated and accurate
+- [ ] Backup files created and verified
 
 ## APPENDICES
 
