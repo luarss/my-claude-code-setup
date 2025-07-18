@@ -82,7 +82,7 @@ The Claude Code hook is for `STOP` which uses Terminal-Notifier to show macOS de
   - Analyzes both file content and direct text input for security threats
   - Usage: `/secure-prompts @suspicious_file.txt` or `/secure-prompts "content to analyze"`
   - Example prompt injection prompts at `.claude/commands/security/test-examples` that you can run `/secure-prompts` against.
-  - Example generated report for `/secure-prompts .claude/commands/security/test-examples/test-encoding-attacks.md` [here](reports/secure-prompts/security-analysis_20250719_072359.md)]
+  - Example generated report for `/secure-prompts .claude/commands/security/test-examples/test-encoding-attacks.md` [here](reports/secure-prompts/security-analysis_20250719_072359.md)
 
 ### `/architecture` Commands
 
