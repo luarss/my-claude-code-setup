@@ -75,6 +75,15 @@ The Claude Code hook is for `STOP` which uses Terminal-Notifier to show macOS de
   - Prioritizes impactful improvements over nitpicks
   - Usage: `/check-best-practices`
 
+- **`/secure-prompts`** - Enterprise-grade security analyzer for detecting prompt injection attacks and malicious instructions
+  - Detects prompt injection attacks, hidden content, and malicious instructions using advanced AI-specific detection patterns
+  - Provides comprehensive threat analysis with automated timestamped report generation
+  - Saves reports to `reports/secure-prompts/` directory for audit trails
+  - Analyzes both file content and direct text input for security threats
+  - Usage: `/secure-prompts @suspicious_file.txt` or `/secure-prompts "content to analyze"`
+  - Example prompt injection prompts at `.claude/commands/security/test-examples` that you can run `/secure-prompts` against.
+  - Example generated report for `/secure-prompts .claude/commands/security/test-examples/test-encoding-attacks.md` [here](reports/secure-prompts/security-analysis_20250719_072359.md)]
+
 ### `/architecture` Commands
 
 - **`/explain-architecture-pattern`** - Identify and explain architectural patterns in the codebase
